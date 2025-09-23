@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Watare Global Solutions — System Dashboard Mockup</title>
+  <style>
+
+  .client-table { width:100%; border-collapse: collapse; }
+  .client-table th, .client-table td { padding:10px; border:1px solid #ddd; text-align:center; }
+  .client-table th { background:#3498db; color:white; }
+
+  .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); }
+  .modal-content { background:#fff; margin:8% auto; padding:20px; width:60%; border-radius:10px; position:relative; }
+  .close { position:absolute; top:10px; right:20px; font-size:20px; cursor:pointer; }
+
+  .progress-bar { width:100%; background:#eee; border-radius:8px; margin:10px 0; height:20px; }
+  .progress-fill { height:100%; width:40%; background:#27ae60; border-radius:8px; }
+
+  .process-tracker { list-style:none; padding:0; display:flex; justify-content:space-between; margin:20px 0; }
+  .process-tracker li { flex:1; text-align:center; position:relative; padding:5px; }
+  .process-tracker li.done { color:green; font-weight:bold; }
+  .process-tracker li.active { color:#f39c12; font-weight:bold; }
+  .process-tracker li::before {
+    content:"●"; display:block; margin:0 auto 5px; font-size:18px;
+  }
+  .process-tracker li.done::before { color:green; }
+  .process-tracker li.active::before { color:#f39c12; }
+
+    /* Base reset & fonts */
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+      color:#333; min-height:100vh; padding:24px;
+    }
+
+    .container{
+      max-width:1400px;margin:0 auto;background:#fff;border-radius:18px;
+      box-shadow:0 20px 40px rgba(0,0,0,0.12);overflow:hidden;
+    }
+
+    .header{
+      background:linear-gradient(135deg,#2c3e50 0%,#3498db 100%); color:#fff;
+      padding:28px;text-align:left;
+      display:flex;gap:20px;align-items:center;justify-content:space-between;
+      flex-wrap:wrap;
+    }
+    .brand {
+      display:flex;gap:16px;align-items:center;
+    }
+    .brand h1{font-size:1.6rem;margin-bottom:4px}
+    .brand p{opacity:0.9;font-size:0.95rem}
+
+    .header .meta {text-align:right}
+    .header .meta p{font-size:0.9rem;opacity:0.9}
+
+    /* Tabs */
+    .tabs{display:flex;background:#f8f9fa;border-bottom:3px solid #e9ecef}
+    .tab{flex:1;padding:14px 18px;text-align:center;background:#f8f9fa;border:none;cursor:pointer;font-weight:700;color:#6c757d;font-size:0.95rem;transition:all .18s}
+    .tab:hover{background:#e9ecef;color:#2c3e50}
+    .tab.active{background:#fff;color:#2c3e50;border-bottom:3px solid #3498db;transform:translateY(3px)}
+
+    .content{padding:28px;min-height:520px}
+
+    .tab-content{display:none}
+    .tab-content.active{display:block; animation:fadeIn .4s ease-in}
+    @keyframes fadeIn {from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)}}
+
+    /* Grid & cards */
+    .row {display:flex;gap:20px;flex-wrap:wrap}
+    .col {flex:1;min-width:260px}
+    .card {
+      background:linear-gradient(135deg,#fff 0%, #f8f9fa 100%);
+      padding:18px;border-radius:12px;border:1px solid #e8e8e8;box-shadow:0 8px 18px rgba(0,0,0,0.04);
+    }
+    .interface-header{background:#2c3e50;color:#fff;padding:12px 16px;border-radius:8px;font-weight:700;margin-bottom:14px}
+
+    /* Tables */
+    table{width:100%;border-collapse:collapse;font-size:0.95rem}
+    thead th{padding:10px;text-align:left}
+    tbody td{padding:10px;border-top:1px solid #eee}
+    .table-actions{display:flex;gap:8px;flex-wrap:wrap}
+    .input-inline{padding:8px;border-radius:6px;border:1px solid #ddd;width:100%}
+    .small{width:120px}
+
+    /* Buttons */
+    .btn{
+      background:linear-gradient(135deg,#3498db 0%,#2980b9 100%);color:#fff;padding:10px 14px;border-radius:8px;border:none;cursor:pointer;font-weight:700;
+    }
+    .btn:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(52,152,219,0.25)}
+    .btn-outline{background:#fff;border:1px solid #ddd;color:#333}
+    .btn-success{background:linear-gradient(135deg,#27ae60 0%,#229954 100%)}
+    .btn-warning{background:linear-gradient(135deg,#f39c12 0%,#e67e22 100%)}
+
+    /* Forms & small text */
+    .muted{color:#6c757d;font-size:0.9rem}
+    .label{font-weight:700;margin-bottom:6px;display:block;color:#2c3e50}
+    .form-row{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+
+    /* Responsive tweaks */
+    @media (max-width:900px){
+      .tabs{flex-wrap:wrap}
+      .header{padding:18px}
+    }
+
+    /* tiny pill */
+    .pill{display:inline-block;padding:6px 10px;border-radius:999px;font-weight:700;font-size:0.85rem}
+    .pill-paid{background:#e9f7ee;color:#1a7a3a;border:1px solid #c9efd6}
+    .pill-pending{background:#fff8e6;color:#a46b00;border:1px solid #f1e0b6}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="brand">
+        <div style="font-size:2.2rem">🚀</div>
+        <div>
+          <h1>Watare Global Solutions</h1>
+          <p>Ethical recruitment & relocation — Malta focus · 250+ placements · 6–9 month support</p>
+        </div>
+      </div>
+
+      <div class="meta">
+        <p><strong>Quick stats</strong></p>
+        <p class="muted">250+ placements · Ksh.2,000 consultation · Real-time tracking</p>
+      </div>
+    </div>
+
+    <div class="tabs" id="tabs">
+      <button class="tab active" data-tab="clients">👤 Clients</button>
+      <button class="tab" data-tab="financials">📋 Financials</button>
+      <button class="tab" data-tab="analytics">📈 Analytics</button>
+      <button class="tab" data-tab="jobs">🌍 Jobs</button>
+      <button class="tab" data-tab="support">🤝 Support</button>
+    </div>
+
+    <div class="content">
+      <!-- CLIENTS -->
+       <div id="clients" class="tab-content active">
+        <div class="row">
+          <div class="col card">
+            <div class="interface-header">👥 Client Management</div>
+
+            <div class="muted" style="margin-bottom:10px">Track applicants through the 6–9 month process. Add or edit rows — demo data persists locally.</div>
+
+            <div style="margin-bottom:12px">
+              <div class="form-row">
+                <input id="clientName" class="input-inline" placeholder="Full name (e.g., John Doe)" />
+                <select id="clientCountry" class="input-inline small">
+                  <option>Malta</option><option>Germany</option><option>Croatia</option><option>Qatar</option><option>Other</option>
+                </select>
+                <select id="clientService" class="input-inline small">
+                  <option>Job Placement</option><option>Visa Processing</option><option>Travel Package</option><option>Consultation</option>
+                </select>
+                <select id="clientStage" class="input-inline small">
+                  <option>Consultation</option><option>Application</option><option>Interview Prep</option><option>Visa Processing</option><option>Placement</option><option>Post-Arrival</option>
+                </select>
+                <select id="clientPayment" class="input-inline small">
+                  <option value="paid">Paid</option><option value="pending">Pending</option>
+                </select>
+                <button class="btn" onclick="addClient()">➕ Add</button>
+              </div>
+            </div>
+
+            <div style="max-height:320px;overflow:auto;border-top:1px solid #f1f1f1;padding-top:10px">
+              <table id="clientsTable">
+                <thead><tr>
+                  <th>Name</th><th>Country</th><th>Service</th><th>Stage</th><th>Payment</th><th>Actions</th>
+                </tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="col card">
+            <div class="interface-header">📌 Quick Funnel</div>
+            <div style="padding:8px">
+              <p class="muted">Shows counts per stage to help measure pipeline conversion.</p>
+              <div id="funnelCounts" style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:12px">
+                <!-- dynamic counts -->
+              </div>
+            </div>
+
+            <hr style="margin:14px 0;border:none;border-top:1px dashed #eee" />
+
+            <div>
+              <div class="interface-header" style="background:#3498db;margin-bottom:10px;font-size:0.95rem">📬 Subscribe & quick actions</div>
+              <div style="display:flex;gap:10px;flex-wrap:wrap">
+                <button class="btn btn-outline" onclick="seedDemo()">Seed Demo Data</button>
+                <button class="btn btn-warning" onclick="clearAll()">🧹 Clear All Local Demo Data</button>
+                <button class="btn btn-success" onclick="exportData()">📤 Export JSON</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div> 
+        <!-- Clients Tab -->
+<div id="clients" class="tab-content">
+  <h2>👤 Clients</h2>
+  <table class="client-table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Country</th>
+        <th>Service</th>
+        <th>Stage</th>
+        <th>Status</th>
+        <th>Payment</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>John Doe</td>
+        <td>Malta</td>
+        <td>Job Placement</td>
+        <td>Visa Processing</td>
+        <td>In Progress</td>
+        <td>40% Paid</td>
+        <td><button onclick="openClientDetails('John Doe')">🔍 View</button></td>
+      </tr>
+      <tr>
+        <td>Jane Smith</td>
+        <td>Germany</td>
+        <td>Student Visa</td>
+        <td>Interview Prep</td>
+        <td>Pending</td>
+        <td>20% Paid</td>
+        <td><button onclick="openClientDetails('Jane Smith')">🔍 View</button></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Client Details Modal -->
+<div id="clientModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeClientDetails()">&times;</span>
+    <h3 id="clientName">Client Details</h3>
+
+    <!-- Payment Tracker -->
+    <h4>💳 Payment Tracker</h4>
+    <p><b>Consultation Fee:</b> <span id="consultationStatus">Paid</span></p>
+    <div class="progress-bar">
+      <div id="paymentProgress" class="progress-fill"></div>
+    </div>
+    <p id="paymentSummary">Ksh. 20,000 / Ksh. 50,000 (40% Paid)</p>
+    <p id="refundFlag" style="color:red; display:none;">⚠️ Eligible for Refund</p>
+
+    <!-- Process Tracker -->
+    <h4>📌 Process Tracker</h4>
+    <ul id="processSteps" class="process-tracker">
+      <li class="done">Consultation Fee Paid</li>
+      <li class="done">Service Selection</li>
+      <li class="active">Deposit Reached</li>
+      <li>Interview Scheduled</li>
+      <li>Visa Processing</li>
+      <li>Job Placement / Relocation</li>
+    </ul>
+  </div>
+</div>
+
+      <!-- FINANCIALS -->
+      <div id="financials" class="tab-content">
+        <div class="row">
+          <div class="col card">
+            <div class="interface-header">💰 Income Tracking</div>
+
+            <div class="muted" style="margin-bottom:8px">Add consultation fees, placement income, travel commissions, etc.</div>
+
+            <div style="margin-bottom:10px">
+              <div class="form-row">
+                <input id="incomeDate" type="date" class="input-inline small" />
+                <input id="incomeClient" placeholder="Client (optional)" class="input-inline" />
+                <select id="incomeCategory" class="input-inline small">
+                  <option>Consultation Fee</option><option>Job Placement Fee</option><option>Travel Commission</option><option>Visa Fee</option><option>Other</option>
+                </select>
+                <input id="incomeAmount" type="number" placeholder="Amount (Ksh or $)" class="input-inline small" />
+                <select id="incomeStatus" class="input-inline small">
+                  <option value="paid">Paid</option><option value="pending">Pending</option>
+                </select>
+                <button class="btn" onclick="addIncome()">➕ Add Income</button>
+              </div>
+            </div>
+
+            <div style="max-height:280px;overflow:auto">
+              <table id="incomeTable">
+                <thead>
+                  <tr><th>Date</th><th>Client</th><th>Category</th><th>Amount</th><th>Status</th><th>Actions</th></tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+
+            <div style="margin-top:12px;display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+              <div class="card" style="padding:10px">
+                <div class="muted">Total Income</div>
+                <div id="totalIncome" style="font-weight:800;font-size:1.15rem;padding-top:6px">$0.00</div>
+              </div>
+              <div class="card" style="padding:10px">
+                <div class="muted">Pending Income</div>
+                <div id="pendingIncome" style="font-weight:800;font-size:1.15rem;padding-top:6px">$0.00</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col card">
+            <div class="interface-header">💸 Expense Tracking</div>
+
+            <div class="muted" style="margin-bottom:8px">Record rent, salaries, marketing, telephony (3CX) costs, travel bookings, etc.</div>
+
+            <div style="margin-bottom:10px">
+              <div class="form-row">
+                <input id="expenseDate" type="date" class="input-inline small" />
+                <input id="expenseVendor" placeholder="Vendor" class="input-inline" />
+                <select id="expenseCategory" class="input-inline small">
+                  <option>Office Rent</option><option>Staff Salaries</option><option>Marketing</option><option>3CX/Telephony</option><option>Travel & Transport</option><option>Visa Costs</option><option>Other</option>
+                </select>
+                <input id="expenseAmount" type="number" placeholder="Amount" class="input-inline small" />
+                <select id="expenseMethod" class="input-inline small">
+                  <option>Cash</option><option>Bank Transfer</option><option>Credit Card</option><option>Digital Payment</option>
+                </select>
+                <button class="btn" onclick="addExpense()">➕ Add Expense</button>
+              </div>
+            </div>
+
+            <div style="max-height:280px;overflow:auto">
+              <table id="expenseTable">
+                <thead><tr><th>Date</th><th>Vendor</th><th>Category</th><th>Amount</th><th>Method</th><th>Actions</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+
+            <div style="margin-top:12px;display:flex;gap:12px;align-items:center">
+              <div class="card" style="padding:10px">
+                <div class="muted">Total Expenses</div>
+                <div id="totalExpenses" style="font-weight:800;font-size:1.15rem;padding-top:6px">$0.00</div>
+              </div>
+              <div class="card" style="padding:10px">
+                <div class="muted">Net (Income - Expenses)</div>
+                <div id="netTotal" style="font-weight:800;font-size:1.15rem;padding-top:6px">$0.00</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- ANALYTICS -->
+      <div id="analytics" class="tab-content">
+        <div class="row">
+          <div class="col card">
+            <div class="interface-header">📊 Monthly Revenue vs Expenses</div>
+            <canvas id="revenueChart" height="150"></canvas>
+          </div>
+
+          <div class="col card">
+            <div class="interface-header">🌍 Placements by Country</div>
+            <canvas id="countryPie" height="150"></canvas>
+          </div>
+        </div>
+
+        <div style="margin-top:18px" class="card">
+          <div class="interface-header">📞 Calls / Funnel vs Placements</div>
+          <canvas id="funnelChart" height="110"></canvas>
+        </div>
+      </div>
+
+      <!-- JOBS -->
+      <div id="jobs" class="tab-content">
+        <div class="card">
+          <div class="interface-header">🌍 Verified Job Listings</div>
+          <div class="muted" style="margin-bottom:12px">Add job openings verified by your recruitment team. Use this as a mock job board for clients.</div>
+
+          <div style="margin-bottom:12px" class="form-row">
+            <input id="jobCountry" placeholder="Country (e.g., Malta)" class="input-inline small" />
+            <input id="jobTitle" placeholder="Job Title (e.g., Hospitality - Chef)" class="input-inline" />
+            <select id="jobSector" class="input-inline small">
+              <option>Hospitality</option><option>Construction</option><option>Healthcare</option><option>Warehouse</option><option>Other</option>
+            </select>
+            <input id="jobSalary" placeholder="Salary / Package" class="input-inline small" />
+            <select id="jobStatus" class="input-inline small"><option>Open</option><option>Closed</option></select>
+            <button class="btn" onclick="addJob()">➕ Add Job</button>
+          </div>
+
+          <div style="max-height:300px;overflow:auto">
+            <table id="jobsTable">
+              <thead><tr><th>Country</th><th>Title</th><th>Sector</th><th>Salary</th><th>Status</th><th>Actions</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUPPORT -->
+       <!-- SUPPORT -->
+    <div id="support" class="tab-content">
+    <div class="row">
+        <!-- Post-Arrival Support -->
+        <div class="col card">
+        <div class="interface-header">🤝 Post-Arrival Support</div>
+        <p class="muted" style="margin-bottom:8px">
+            Useful links, emergency contacts, and settlement guides for placed clients.
+        </p>
+        <ul style="margin-left:18px">
+            <li>Arrival checklist: documents, local registration, emergency phone numbers</li>
+            <li>Top tips: accommodation, public transport, local SIM & banking</li>
+            <li>Community & networking: connect with other Kenyans</li>
+        </ul>
+        </div>
+
+        <!-- Quick Contact -->
+        <div class="col card">
+        <div class="interface-header">📞 Quick Contact</div>
+        <p><strong>Mountain Mall, 3rd Floor, Room D25, Thika Road</strong></p>
+        <p class="muted">Phone: 0703 123 620</p>
+        <p class="muted">Email: support@wsg.com</p>
+
+        <div style="margin-top:12px">
+            <label class="label">Sign up newsletter</label>
+            <div style="display:flex;gap:8px">
+            <input id="newsletterEmail" placeholder="Your email" class="input-inline" />
+            <button class="btn" onclick="subscribeNewsletter()">Subscribe</button>
+            </div>
+            <div id="newsletterMsg" class="muted" style="margin-top:8px"></div>
+        </div>
+        </div>
+
+        <!-- Call Center Integration -->
+        <div class="col card">
+        <div class="interface-header">🎧 Call Center (3CX)</div>
+        <p class="muted">Connect directly with our 3CX call center.</p>
+
+        <!-- Direct call (phone or softphone) -->
+        <button class="btn" style="margin-bottom:10px" onclick="window.open('tel:+254703123620')">
+            📞 Call Support Now
+        </button>
+
+        <!-- Open 3CX Web Client in new tab -->
+        <button class="btn" onclick="window.open('https://1090.3cx.cloud/webclient/', '_blank')">
+            🚀 Open 3CX Web Client
+        </button>
+        </div>
+    </div>
+    </div>
+
+    <!-- <div id="support" class="tab-content">
+    <div class="row">
+       
+        <div class="col card">
+        <div class="interface-header">🤝 Post-Arrival Support</div>
+        <p class="muted" style="margin-bottom:8px">
+            Useful links, emergency contacts, and settlement guides for placed clients.
+        </p>
+        <ul style="margin-left:18px">
+            <li>Arrival checklist: documents, local registration, emergency phone numbers</li>
+            <li>Top tips: accommodation, public transport, local SIM & banking</li>
+            <li>Community & networking: connect with other Kenyans</li>
+        </ul>
+        </div>
+
+   
+        <div class="col card">
+        <div class="interface-header">📞 Quick Contact</div>
+        <p><strong>Mountain Mall, 3rd Floor, Room D25, Thika Road</strong></p>
+        <p class="muted">Phone: 0703 123 620</p>
+        <p class="muted">Email: support@wsg.com</p>
+
+        <div style="margin-top:12px">
+            <label class="label">Sign up newsletter</label>
+            <div style="display:flex;gap:8px">
+            <input id="newsletterEmail" placeholder="Your email" class="input-inline" />
+            <button class="btn" onclick="subscribeNewsletter()">Subscribe</button>
+            </div>
+            <div id="newsletterMsg" class="muted" style="margin-top:8px"></div>
+        </div>
+        </div>
+
+   
+        <div class="col card">
+        <div class="interface-header">🎧 Call Center (3CX)</div>
+        <p class="muted">Connect directly with our 3CX call center.</p>
+
+ 
+        <button class="btn" onclick="window.open('tel:+254790291533')">
+            📞 Call Support Now
+        </button>
+         <div style="margin-top:12px;">
+            <button class="btn" onclick="window.open('https://1090.3cx.cloud/webclient/', '_blank')">
+            🚀 Open 3CX Web Client
+            </button>
+         </div>
+  
+        <!-- <div style="margin-top:12px; height:400px; overflow:hidden; border-radius:8px;">
+            <iframe 
+            src="https://1090.3cx.cloud/webclient/" 
+            width="100%" 
+            height="100%" 
+            style="border:0;">
+            </iframe>
+        </div> 
+        </div>
+    </div>
+    </div> -->
+
+      <!-- <div id="support" class="tab-content">
+        <div class="row">
+          <div class="col card">
+            <div class="interface-header">🤝 Post-Arrival Support</div>
+            <p class="muted" style="margin-bottom:8px">Useful links, emergency contacts, and settlement guides for placed clients.</p>
+            <ul style="margin-left:18px">
+              <li>Arrival checklist: documents, local registration, emergency phone numbers</li>
+              <li>Top tips: accommodation, public transport, local SIM & banking</li>
+              <li>Community & networking: connect with other Kenyans</li>
+            </ul>
+          </div>
+
+          <div class="col card">
+            <div class="interface-header">📞 Quick Contact</div>
+            <p><strong>Mountain Mall, 3rd Floor, Room D25, Thika Road</strong></p>
+            <p class="muted">Phone: 0703 123 620</p>
+            <p class="muted">Email: support@wsg.com</p>
+
+            <div style="margin-top:12px">
+              <label class="label">Sign up newsletter</label>
+              <div style="display:flex;gap:8px">
+                <input id="newsletterEmail" placeholder="Your email" class="input-inline" />
+                <button class="btn" onclick="subscribeNewsletter()">Subscribe</button>
+              </div>
+              <div id="newsletterMsg" class="muted" style="margin-top:8px"></div>
+            </div>
+          </div>
+        </div>
+      </div> -->
+
+    </div> <!-- content -->
+  </div> <!-- container -->
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Script -->
+  <script>
+    function openClientDetails(name) {
+        document.getElementById('clientName').innerText = name + " - Details";
+
+        // Example dynamic logic for John Doe
+        if(name === "John Doe") {
+        document.getElementById('consultationStatus').innerText = "Paid";
+        document.getElementById('paymentProgress').style.width = "40%";
+        document.getElementById('paymentSummary').innerText = "Ksh. 20,000 / Ksh. 50,000 (40% Paid)";
+        document.getElementById('refundFlag').style.display = "none";
+        }
+
+        // Example for Jane Smith
+        if(name === "Jane Smith") {
+        document.getElementById('consultationStatus').innerText = "Pending";
+        document.getElementById('paymentProgress').style.width = "20%";
+        document.getElementById('paymentSummary').innerText = "Ksh. 10,000 / Ksh. 50,000 (20% Paid)";
+        document.getElementById('refundFlag').style.display = "block";
+        }
+
+        document.getElementById('clientModal').style.display = "block";
+    }
+
+    function closeClientDetails() {
+        document.getElementById('clientModal').style.display = "none";
+    }
+  
+    /* ---------- Utilities & storage ---------- */
+    const storageKey = 'watare_demo_v1';
+
+    function loadState(){
+      try{
+        const s = localStorage.getItem(storageKey);
+        if(!s) return null;
+        return JSON.parse(s);
+      }catch(e){ console.warn('loadState error', e); return null }
+    }
+    function saveState(state){
+      try { localStorage.setItem(storageKey, JSON.stringify(state)); } catch(e){ console.warn(e) }
+    }
+
+    function formatCurrency(n){
+      // show two decimals and thousands separator
+      const negative = Number(n) < 0;
+      const v = Math.abs(Number(n) || 0).toFixed(2).toString();
+      const parts = v.split('.');
+      parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+      return (negative?'-':'') + '$' + parts.join('.');
+    }
+
+    /* ---------- Initial demo state ---------- */
+    let state = loadState() || {
+      clients: [
+        {id:uid(), name:'John Doe', country:'Malta', service:'Job Placement', stage:'Visa Processing', payment:'paid'},
+        {id:uid(), name:'Jane Smith', country:'Germany', service:'Student Visa', stage:'Interview Prep', payment:'pending'}
+      ],
+      income:[
+        {id:uid(), date:'2025-09-01', client:'John Doe', category:'Job Placement Fee', amount:4500, status:'paid'},
+        {id:uid(), date:'2025-09-05', client:'Jane Smith', category:'Travel Commission', amount:1800, status:'pending'}
+      ],
+      expenses:[
+        {id:uid(), date:'2025-09-02', vendor:'Office Rent', category:'Office Rent', amount:3200, method:'Bank Transfer'},
+        {id:uid(), date:'2025-09-06', vendor:'Marketing Co.', category:'Marketing', amount:1500, method:'Credit Card'}
+      ],
+      jobs:[
+        {id:uid(), country:'Malta', title:'Hospitality - Chef', sector:'Hospitality', salary:'Ksh. 120,000', status:'Open'},
+        {id:uid(), country:'Germany', title:'Construction - General Worker', sector:'Construction', salary:'€1,200/mo', status:'Open'}
+      ],
+      newsletter: []
+    };
+
+    /* ---------- DOM helpers ---------- */
+    function $(sel){ return document.querySelector(sel) }
+    function $all(sel){ return Array.from(document.querySelectorAll(sel)) }
+
+    /* ---------- UID ---------- */
+    function uid(){ return 'id_' + Math.random().toString(36).slice(2,9) }
+
+    /* ---------- Renderers ---------- */
+    function renderClients(){
+      const tbody = $('#clientsTable tbody');
+      tbody.innerHTML = '';
+      state.clients.forEach(c => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${escapeHtml(c.name)}</td>
+          <td>${escapeHtml(c.country)}</td>
+          <td>${escapeHtml(c.service)}</td>
+          <td>${escapeHtml(c.stage)}</td>
+          <td>${c.payment === 'paid' ? '<span class="pill pill-paid">Paid</span>' : '<span class="pill pill-pending">Pending</span>'}</td>
+          <td>
+            <div class="table-actions">
+              <button class="btn btn-outline" onclick="editClient('${c.id}')">Edit</button>
+              <button class="btn btn-warning" onclick="deleteClient('${c.id}')">Delete</button>
+            </div>
+          </td>`;
+        tbody.appendChild(tr);
+      });
+
+      // funnel counts
+      const counts = state.clients.reduce((acc, cur) => {
+        acc[cur.stage] = (acc[cur.stage] || 0) + 1; return acc;
+      }, {});
+      const funnelDiv = $('#funnelCounts');
+      funnelDiv.innerHTML = '';
+      const orderedStages = ['Consultation','Application','Interview Prep','Visa Processing','Placement','Post-Arrival'];
+      orderedStages.forEach(stage => {
+        const c = counts[stage] || 0;
+        const div = document.createElement('div');
+        div.className = 'card';
+        div.style.padding = '8px';
+        div.innerHTML = `<div class="muted">${escapeHtml(stage)}</div><div style="font-weight:800;font-size:1.1rem">${c}</div>`;
+        funnelDiv.appendChild(div);
+      });
+
+      saveState(state);
+      updateCharts();
+    }
+
+    function renderIncome(){
+      const tbody = $('#incomeTable tbody'); tbody.innerHTML = '';
+      state.income.forEach(r => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${r.date || ''}</td>
+                        <td>${escapeHtml(r.client || '')}</td>
+                        <td>${escapeHtml(r.category || '')}</td>
+                        <td>${formatCurrency(r.amount)}</td>
+                        <td>${r.status === 'paid' ? '<span class="pill pill-paid">Paid</span>' : '<span class="pill pill-pending">Pending</span>'}</td>
+                        <td>
+                          <div class="table-actions">
+                            <button class="btn btn-outline" onclick="deleteIncome('${r.id}')">Delete</button>
+                          </div>
+                        </td>`;
+        tbody.appendChild(tr);
+      });
+
+      const total = state.income.reduce((s,x)=> s + Number(x.amount || 0),0);
+      const pending = state.income.filter(i=>i.status!=='paid').reduce((s,x)=> s + Number(x.amount||0),0);
+      $('#totalIncome').textContent = formatCurrency(total);
+      $('#pendingIncome').textContent = formatCurrency(pending);
+
+      saveState(state);
+      updateCharts();
+    }
+
+    function renderExpenses(){
+      const tbody = $('#expenseTable tbody'); tbody.innerHTML = '';
+      state.expenses.forEach(e => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${e.date || ''}</td>
+                        <td>${escapeHtml(e.vendor || '')}</td>
+                        <td>${escapeHtml(e.category || '')}</td>
+                        <td>${formatCurrency(e.amount)}</td>
+                        <td>${escapeHtml(e.method || '')}</td>
+                        <td>
+                          <div class="table-actions">
+                            <button class="btn btn-outline" onclick="deleteExpense('${e.id}')">Delete</button>
+                          </div>
+                        </td>`;
+        tbody.appendChild(tr);
+      });
+
+      const totalExp = state.expenses.reduce((s,x)=> s + Number(x.amount||0),0);
+      $('#totalExpenses').textContent = formatCurrency(totalExp);
+      const totalInc = state.income.reduce((s,x)=> s + Number(x.amount||0),0);
+      $('#netTotal').textContent = formatCurrency(totalInc - totalExp);
+
+      saveState(state);
+      updateCharts();
+    }
+
+    function renderJobs(){
+      const tbody = $('#jobsTable tbody'); tbody.innerHTML = '';
+      state.jobs.forEach(j=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${escapeHtml(j.country)}</td>
+                        <td>${escapeHtml(j.title)}</td>
+                        <td>${escapeHtml(j.sector)}</td>
+                        <td>${escapeHtml(j.salary)}</td>
+                        <td>${escapeHtml(j.status)}</td>
+                        <td><div class="table-actions"><button class="btn btn-outline" onclick="deleteJob('${j.id}')">Delete</button></div></td>`;
+        tbody.appendChild(tr);
+      });
+      saveState(state);
+    }
+
+    function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g, function(m){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]) }) }
+
+    /* ---------- CRUD actions ---------- */
+    function addClient(){
+      const n = $('#clientName').value.trim();
+      const country = $('#clientCountry').value;
+      const service = $('#clientService').value;
+      const stage = $('#clientStage').value;
+      const payment = $('#clientPayment').value;
+
+      if(!n){ alert('Please enter a client name'); return }
+      state.clients.unshift({id:uid(), name:n, country, service, stage, payment});
+      // clear
+      $('#clientName').value='';
+      renderClients();
+    }
+    function editClient(id){ alert('Demo: editing is not implemented in this mockup. You can delete and re-add.'); }
+    function deleteClient(id){ state.clients = state.clients.filter(c=>c.id!==id); renderClients(); }
+
+    function addIncome(){
+      const date = $('#incomeDate').value || new Date().toISOString().slice(0,10);
+      const client = $('#incomeClient').value.trim();
+      const category = $('#incomeCategory').value;
+      const amount = Number($('#incomeAmount').value) || 0;
+      const status = $('#incomeStatus').value;
+      if(amount <= 0){ alert('Enter amount > 0'); return }
+      state.income.unshift({id:uid(), date, client, category, amount, status});
+      // reset simple fields
+      $('#incomeClient').value=''; $('#incomeAmount').value='';
+      renderIncome(); renderClients(); // in case clients funnel changes
+    }
+    function deleteIncome(id){ state.income = state.income.filter(i=>i.id!==id); renderIncome(); }
+
+    function addExpense(){
+      const date = $('#expenseDate').value || new Date().toISOString().slice(0,10);
+      const vendor = $('#expenseVendor').value.trim();
+      const category = $('#expenseCategory').value;
+      const amount = Number($('#expenseAmount').value) || 0;
+      const method = $('#expenseMethod').value;
+      if(amount <= 0){ alert('Enter amount > 0'); return }
+      state.expenses.unshift({id:uid(), date, vendor, category, amount, method});
+      $('#expenseVendor').value=''; $('#expenseAmount').value='';
+      renderExpenses();
+    }
+    function deleteExpense(id){ state.expenses = state.expenses.filter(e=>e.id!==id); renderExpenses(); }
+
+    function addJob(){
+      const country = $('#jobCountry').value.trim() || 'Other';
+      const title = $('#jobTitle').value.trim() || 'Title';
+      const sector = $('#jobSector').value;
+      const salary = $('#jobSalary').value.trim() || '';
+      const status = $('#jobStatus').value;
+      state.jobs.unshift({id:uid(), country, title, sector, salary, status});
+      $('#jobCountry').value=''; $('#jobTitle').value=''; $('#jobSalary').value='';
+      renderJobs();
+    }
+    function deleteJob(id){ state.jobs = state.jobs.filter(j=>j.id!==id); renderJobs(); }
+
+    function subscribeNewsletter(){
+      const email = $('#newsletterEmail').value.trim();
+      if(!email || !email.includes('@')){ $('#newsletterMsg').textContent='Enter a valid email'; return }
+      state.newsletter.push({email, date: new Date().toISOString()});
+      $('#newsletterMsg').textContent = 'Thanks! Subscribed.';
+      $('#newsletterEmail').value='';
+      saveState(state);
+    }
+
+    /* ---------- Demo utilities ---------- */
+    function seedDemo(){
+      if(!confirm('Seed demo data? This will append example entries.')) return;
+      state.clients.push(
+        {id:uid(), name:'Mike Johnson', country:'Croatia', service:'Job Placement', stage:'Application', payment:'paid'},
+        {id:uid(), name:'Sarah Wilson', country:'Qatar', service:'Visa Processing', stage:'Consultation', payment:'pending'}
+      );
+      state.income.push(
+        {id:uid(), date:'2025-08-15', client:'Mike Johnson', category:'Consultation Fee', amount:2000, status:'paid'},
+        {id:uid(), date:'2025-07-10', client:'Sarah Wilson', category:'Visa Fee', amount:500, status:'paid'}
+      );
+      state.expenses.push(
+        {id:uid(), date:'2025-08-01', vendor:'Telecom Co.', category:'3CX/Telephony', amount:1200, method:'Bank Transfer'},
+        {id:uid(), date:'2025-07-12', vendor:'Training Venue', category:'Other', amount:450, method:'Cash'}
+      );
+      state.jobs.push(
+        {id:uid(), country:'Malta', title:'Caregiver - Healthcare', sector:'Healthcare', salary:'€1,000/mo', status:'Open'}
+      );
+      renderAll();
+      alert('Demo data added.');
+    }
+
+    function clearAll(){
+      if(!confirm('Clear all local demo data? This will reset the mock state.')) return;
+      localStorage.removeItem(storageKey);
+      location.reload();
+    }
+
+    function exportData(){
+      const blob = new Blob([JSON.stringify(state, null, 2)], {type:'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = 'watare_demo_export.json'; document.body.appendChild(a); a.click();
+      setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); }, 500);
+    }
+
+    /* ---------- Charts ---------- */
+    let revenueChart=null, countryPie=null, funnelChart=null;
+
+    function initCharts(){
+      const ctxR = document.getElementById('revenueChart').getContext('2d');
+      revenueChart = new Chart(ctxR, {
+        type:'line',
+        data:{ labels:[], datasets:[
+          {label:'Revenue', data:[], borderColor:'#27ae60', backgroundColor:'rgba(39,174,96,0.15)', fill:true, tension:0.3},
+          {label:'Expenses', data:[], borderColor:'#e74c3c', backgroundColor:'rgba(231,76,60,0.12)', fill:true, tension:0.3}
+        ]},
+        options:{responsive:true, scales:{y:{beginAtZero:true}}}
+      });
+
+      const ctxP = document.getElementById('countryPie').getContext('2d');
+      countryPie = new Chart(ctxP, {
+        type:'pie',
+        data:{ labels:[], datasets:[{data:[], backgroundColor:['#3498db','#9b59b6','#f39c12','#2ecc71','#95a5a6']}] },
+        options:{responsive:true}
+      });
+
+      const ctxF = document.getElementById('funnelChart').getContext('2d');
+      funnelChart = new Chart(ctxF, {
+        type:'bar',
+        data:{ labels:['Consultation','Applications','Interviews','Placements'], datasets:[
+          {label:'Counts', data:[], backgroundColor:'#2980b9'}
+        ]},
+        options:{responsive:true, scales:{y:{beginAtZero:true}}}
+      });
+
+      updateCharts();
+    }
+
+    function updateCharts(){
+      // Monthly revenue vs expenses - simple grouping by month from data
+      const months = getLastMonths(8); // labels
+      const revByMonth = months.map(m=>0);
+      const expByMonth = months.map(m=>0);
+
+      state.income.forEach(i=>{
+        const idx = months.indexOf(i.date ? i.date.slice(0,7) : new Date().toISOString().slice(0,7));
+        if(idx>=0){ revByMonth[idx] += Number(i.amount||0); }
+      });
+      state.expenses.forEach(e=>{
+        const idx = months.indexOf(e.date ? e.date.slice(0,7) : new Date().toISOString().slice(0,7));
+        if(idx>=0){ expByMonth[idx] += Number(e.amount||0); }
+      });
+
+      revenueChart.data.labels = months.map(m => formatMonthLabel(m));
+      revenueChart.data.datasets[0].data = revByMonth;
+      revenueChart.data.datasets[1].data = expByMonth;
+      revenueChart.update();
+
+      // Placements by country (based on clients with stage 'Placement')
+      const placementCountries = {};
+      state.clients.filter(c => c.stage === 'Placement').forEach(p => { placementCountries[p.country] = (placementCountries[p.country]||0) + 1; });
+      const labels = Object.keys(placementCountries);
+      const values = labels.map(l=>placementCountries[l]);
+
+      countryPie.data.labels = labels.length ? labels : ['No placements yet'];
+      countryPie.data.datasets[0].data = values.length ? values : [1];
+      countryPie.update();
+
+      // Funnel counts (Counts across key stages)
+      const counts = {
+        Consultation: state.clients.filter(c=>c.stage==='Consultation').length,
+        Applications: state.clients.filter(c=>c.stage==='Application').length,
+        Interviews: state.clients.filter(c=>c.stage==='Interview Prep').length,
+        Placements: state.clients.filter(c=>c.stage==='Placement').length
+      };
+      funnelChart.data.datasets[0].data = Object.values(counts);
+      funnelChart.update();
+    }
+
+    function getLastMonths(n){
+      const arr = [];
+      const d = new Date();
+      d.setDate(1);
+      for(let i=n-1;i>=0;i--){
+        const dt = new Date(d.getFullYear(), d.getMonth() - i, 1);
+        const k = dt.getFullYear() + '-' + String(dt.getMonth()+1).padStart(2,'0');
+        arr.push(k);
+      }
+      return arr;
+    }
+    function formatMonthLabel(yyyy_mm){
+      const [y,m] = yyyy_mm.split('-'); const d = new Date(Number(y), Number(m)-1, 1);
+      return d.toLocaleString(undefined,{month:'short',year:'numeric'});
+    }
+
+    /* ---------- Tab switching ---------- */
+    document.getElementById('tabs').addEventListener('click', (ev)=>{
+      const t = ev.target.closest('.tab');
+      if(!t) return;
+      const tabName = t.getAttribute('data-tab');
+      $all('.tab').forEach(b=>b.classList.toggle('active', b===t));
+      $all('.tab-content').forEach(c=>c.classList.toggle('active', c.id===tabName));
+      // when analytics tab opens, update chart sizing
+      if(tabName === 'analytics'){ setTimeout(()=>{ revenueChart.resize(); countryPie.resize(); funnelChart.resize(); }, 200); }
+    });
+
+    /* ---------- Helpers & initial render ---------- */
+    function renderAll(){ renderClients(); renderIncome(); renderExpenses(); renderJobs(); }
+
+    // newsletter action
+    function subscribeNewsletter(){ subscribeNewsletterFallback(); } // placeholder wrapper
+    function subscribeNewsletterFallback(){
+      const email = $('#newsletterEmail').value.trim();
+      if(!email || !email.includes('@')){ $('#newsletterMsg').textContent='Enter a valid email'; return }
+      state.newsletter.push({email, date: new Date().toISOString()});
+      $('#newsletterMsg').textContent = 'Thanks! Subscribed.';
+      $('#newsletterEmail').value='';
+      saveState(state);
+    }
+
+    // Make a public function names used by DOM inline handlers
+    window.addClient = addClient;
+    window.addIncome = addIncome;
+    window.addExpense = addExpense;
+    window.addJob = addJob;
+    window.deleteClient = deleteClient;
+    window.deleteIncome = deleteIncome;
+    window.deleteExpense = deleteExpense;
+    window.deleteJob = deleteJob;
+    window.seedDemo = seedDemo;
+    window.clearAll = clearAll;
+    window.exportData = exportData;
+    window.subscribeNewsletter = subscribeNewsletterFallback;
+
+    // Initialize on load
+    window.addEventListener('load', ()=>{
+      initCharts();
+      renderAll();
+    });
+  </script>
+</body>
+</html>

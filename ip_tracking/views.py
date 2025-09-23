@@ -1,6 +1,5 @@
 from django.http import JsonResponse
-from ratelimit.decorators import ratelimit
-
+from django_ratelimit.decorators import ratelimit  
 
 @ratelimit(key="ip", rate="10/m", method="GET", block=True)
 @ratelimit(key="ip", rate="5/m", method="POST", block=True)
